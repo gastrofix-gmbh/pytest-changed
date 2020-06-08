@@ -6,7 +6,7 @@ import re
 import _pytest
 from git import Repo
 
-MATCH_PATTERN = r".*(?:def|class)\s([a-zA-Z_0-9]*).*\:"
+MATCH_PATTERN = r".*(?:def|class)\s([a-zA-Z_0-9]*).*"
 
 
 def pytest_addoption(parser):
