@@ -26,10 +26,10 @@ GIT_DIFF_CHANGE_IN_FUNCTION = \
     b' class TestClassTwo:\n' \
     b'\n' \
     b'     def test_class_two_test_one(self):\n' \
+    b'+\n' \
     b'         assert 1 + 1 == 2\n' \
     b'\n' \
     b'     def test_class_two_test_two(self):\n' \
-    b'+\n' \
     b'         assert 1 + 1 == 2\n'
 
 GIT_DIFF_CHANGE_IN_CLASS = \
@@ -236,7 +236,7 @@ def test_output_removed_code_in_function(
     their names will also be detected.
     """
     diff = MagicMock()
-    diff.diff = GIT_DIFF_CODE_REMOVED_IN_FUNCTION
+    diff.diff = git_diff
     diff.a_path = "dummy_test.py"
 
     modified_mock = MagicMock()
