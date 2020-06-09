@@ -26,10 +26,10 @@ GIT_DIFF_CHANGE_IN_FUNCTION = \
     b' class TestClassTwo:\n' \
     b'\n' \
     b'     def test_class_two_test_one(self):\n' \
+    b'+\n' \
     b'         assert 1 + 1 == 2\n' \
     b'\n' \
     b'     def test_class_two_test_two(self):\n' \
-    b'+\n' \
     b'         assert 1 + 1 == 2\n'
 
 GIT_DIFF_CHANGE_IN_CLASS = \
@@ -149,6 +149,32 @@ GIT_DIFF_ADDED_AND_RENAMED_CODE = \
     b'+     def test_class_one_test_two(self):\n' \
     b'+         assert 1 + 1 == 2\n'
 
+GIT_DIFF_CHANGE_IN_FUNCTION_CUT_OFF_METHOD_PARAMS = \
+    b'diff --git a/dummy_test.py b/dummy_test.py\n' \
+    b'index 6575e440acc807efabcbc156b8683c6344b6fda4..' \
+    b'11314b99949c7e987f050255fa4d0c6497c529bc 100644\n' \
+    b'--- a/dummy_test.py\n' \
+    b'+++ b/dummy_test.py\n' \
+    b'@@ -4,6 +4,7 @@ import pytest\n' \
+    b' class TestClassOne:\n' \
+    b'\n' \
+    b'     def test_class_one_test_one\n' \
+    b'+\n' \
+    b'         assert 1 + 1 == 2\n' \
+    b'\n' \
+    b'     def test_class_one_test_two(self):\n' \
+    b'         assert 1 + 1 == 2\n' \
+    b'\n' \
+    b'\n' \
+    b' class TestClassTwo:\n' \
+    b'\n' \
+    b'     def test_class_two_test_one(\n' \
+    b'+\n' \
+    b'         assert 1 + 1 == 2\n' \
+    b'\n' \
+    b'     def test_class_two_test_two(self):\n' \
+    b'         assert 1 + 1 == 2\n'
+
 
 def test_shows_changed_tests(testdir):
     with patch("pytest_changed.Repo"):
@@ -222,7 +248,11 @@ def test_output_removed_code(
 
 @pytest.mark.parametrize(
     "git_diff",
-    [GIT_DIFF_CHANGE_IN_FUNCTION, GIT_DIFF_CODE_REMOVED_IN_FUNCTION]
+    [
+        GIT_DIFF_CHANGE_IN_FUNCTION,
+        GIT_DIFF_CODE_REMOVED_IN_FUNCTION,
+        GIT_DIFF_CHANGE_IN_FUNCTION_CUT_OFF_METHOD_PARAMS
+     ]
 )
 @patch("pytest_changed.get_changed_files")
 def test_output_removed_code_in_function(
@@ -236,7 +266,7 @@ def test_output_removed_code_in_function(
     their names will also be detected.
     """
     diff = MagicMock()
-    diff.diff = GIT_DIFF_CODE_REMOVED_IN_FUNCTION
+    diff.diff = git_diff
     diff.a_path = "dummy_test.py"
 
     modified_mock = MagicMock()
@@ -253,10 +283,11 @@ def test_output_removed_code_in_function(
 
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
+        pytest_output = result.stdout.str()
         assert "Changed test files... 1:\n" \
                "+ %s/dummy_test.py:\n" \
                "  ['test_class_one_test_one', 'test_class_two_test_one']" \
-               % str(testdir.tmpdir) in result.stdout.str()
+               % str(testdir.tmpdir) in pytest_output
 
 
 @patch("pytest_changed.get_changed_files")
