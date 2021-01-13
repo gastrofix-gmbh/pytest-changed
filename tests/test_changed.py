@@ -179,7 +179,13 @@ GIT_DIFF_CHANGE_IN_FUNCTION_CUT_OFF_METHOD_PARAMS = \
 def test_shows_changed_tests(testdir):
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
-        assert "Changed test files..." in result.stdout.str()
+        assert "Changed test files compared to 'master' branch..." in result.stdout.str()
+
+
+def test_point_to_main_branch(testdir):
+    with patch("pytest_changed.Repo"):
+        result = testdir.runpytest("--changed", "--changed_base_branch", "main")
+        assert "Changed test files compared to 'main' branch..." in result.stdout.str()
 
 
 @patch("pytest_changed.get_changed_files")
@@ -198,7 +204,7 @@ def test_output_no_changes(get_changed_files_mock, testdir, config_mock):
 
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
-        assert "Changed test files... 0:" in result.stdout.str()
+        assert "Changed test files compared to 'master' branch... 0:" in result.stdout.str()
 
 
 @pytest.mark.parametrize(
@@ -240,7 +246,7 @@ def test_output_removed_code(
 
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
-        assert "Changed test files... 1:\n" \
+        assert "Changed test files compared to 'master' branch... 1:\n" \
                "+ %s/dummy_test.py:\n" \
                "  ['TestClassOne', 'TestClassTwo']" % str(testdir.tmpdir) \
                in result.stdout.str()
@@ -284,7 +290,7 @@ def test_output_removed_code_in_function(
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
         pytest_output = result.stdout.str()
-        assert "Changed test files... 1:\n" \
+        assert "Changed test files compared to 'master' branch... 1:\n" \
                "+ %s/dummy_test.py:\n" \
                "  ['test_class_one_test_one', 'test_class_two_test_one']" \
                % str(testdir.tmpdir) in pytest_output
@@ -318,7 +324,7 @@ def test_output_added_file(
 
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
-        assert "Changed test files... 1:\n" \
+        assert "Changed test files compared to 'master' branch... 1:\n" \
                "+ %s/dummy_test.py:\n" \
                "  ['TestClassOne', 'test_class_one_test_one', " \
                "'test_class_one_test_two']" % str(testdir.tmpdir) in \
@@ -355,7 +361,7 @@ def test_output_file_not_in_args(
 
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed", tests_dir)
-        assert "Changed test files... 0:" in result.stdout.str()
+        assert "Changed test files compared to 'master' branch... 0:" in result.stdout.str()
 
 
 @patch("pytest_changed.get_changed_files")
@@ -386,7 +392,7 @@ def test_output_file_renamed(
 
     with patch("pytest_changed.Repo"):
         result = testdir.runpytest("--changed")
-        assert "Changed test files... 1:\n" \
+        assert "Changed test files compared to 'master' branch... 1:\n" \
                "+ %s/dummy_2_test.py:\n" \
                "  ['TestClassOne', 'test_class_one_test_one', " \
                "'test_class_one_test_two']" \

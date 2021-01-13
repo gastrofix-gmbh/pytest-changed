@@ -14,7 +14,7 @@ def read(fname):
 # noinspection PyPackageRequirements
 setup(
     name='pytest-changed',
-    version='0.1.2',
+    version='0.2.0',
     author='Gastrofix GmbH',
     author_email='tech@gastrofix.com',
     maintainer='Gastrofix GmbH',

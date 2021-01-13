@@ -16,6 +16,12 @@ def pytest_addoption(parser):
         default=False,
         help="Find changed test functions and only run those."
     )
+    parser.addoption(
+        "--changed_base_branch",
+        action="store",
+        default="master",
+        help="Choose a branch to compare to, 'master' by default"
+    )
 
 
 def pytest_configure(config):
@@ -55,7 +61,8 @@ def pytest_collection_modifyitems(session, config, items):
 
 
 def _display_affected_tests(config, files):
-    header_message = "Changed test files... {}:".format(len(files))
+    branch = config.getoption("--changed_base_branch")
+    header_message = f"Changed test files compared to '{branch}' branch... {len(files)}:"
     files_messages = []
     for filename, changed in files.items():
         file_message = "+ {}:\n  {}"
@@ -71,9 +78,9 @@ def _write(config, message):
         writer.line(line)
 
 
-def get_changed_files(repo):
+def get_changed_files(repo, branch):
     current_commit = repo.commit("HEAD~0")
-    master_commit = repo.commit("origin/master")
+    master_commit = repo.commit(f"origin/{branch}")
 
     diff_index = master_commit.diff(current_commit, create_patch=True)
     modified = diff_index.iter_change_type('M')
@@ -105,7 +112,7 @@ def get_changed_names(diff):
 def get_changed_files_with_functions(config):
     root_dir = str(config.rootdir)
     repository = Repo(path=root_dir)
-    _modified, _added, _renamed = get_changed_files(repo=repository)
+    _modified, _added, _renamed = get_changed_files(repo=repository, branch=config.getoption('--changed_base_branch'))
     test_file_convention = config._getini("python_files")
     changed = dict()
     for diff in _modified:
